@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entre Nos Home - Diseña tu Espacio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            sand: {
+              50: '#FAF8F5',
+              100: '#F5F0E8',
+              200: '#EAE1D2',
+              300: '#DDD0BC',
+              400: '#C7B599',
+              600: '#8C7758',
+              800: '#524531',
+              900: '#2A2318'
+            },
+            terracotta: '#C86D51',
+            olive: '#5A6852',
+            linen: '#FDFBF7'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F0E8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C7B599;
+      border-radius: 9999px;
+    }
+    .room-canvas-bg {
+      background-color: #F8F5F0;
+      background-image:
+        radial-gradient(#E8DFC8 1.2px, transparent 1.2px),
+        linear-gradient(to bottom, #FAF7F2 0%, #EDE5D8 100%);
+      background-size: 24px 24px, 100% 100%;
+    }
+    .draggable-furniture {
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
+      transition: transform 0.12s ease-out, filter 0.15s ease;
+    }
+    .draggable-furniture:active {
+      cursor: grabbing;
+    }
+    .draggable-furniture.selected {
+      filter: drop-shadow(0 12px 24px rgba(140, 119, 88, 0.35));
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+    .ambient-sunlight {
+      animation: pulseGlow 8s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-sand-100 text-sand-900 font-sans antialiased h-screen overflow-hidden flex flex-col selection:bg-sand-300 selection:text-sand-900">
+
+  <!-- TOP HEADER / NAV -->
+  <header class="bg-linen/90 backdrop-blur-md border-b border-sand-200 px-4 sm:px-8 py-3 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-sand-800 text-sand-100 flex items-center justify-center font-serif text-lg tracking-tighter">EN</div>
+      <div>
+        <h1 class="font-serif text-xl sm:text-2xl tracking-wide text-sand-900 font-medium">Entre Nos Home</h1>
+        <p class="text-[10px] tracking-widest uppercase text-sand-600 -mt-1 font-semibold">Atelier de Diseño & Armonía</p>
+      </div>
+    </div>
+
+    <!-- CHALLENGE & STATUS PILLS -->
+    <div class="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+      <div class="hidden md:flex items-center gap-2 bg-sand-200/60 px-3 py-1.5 rounded-full border border-sand-300/50">
+        <span class="text-sand-600">Modo:</span>
+        <span id="currentChallengeTitle" class="font-medium text-sand-900">Sala Cálida & Minimal</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 bg-linen px-3 py-1.5 rounded-full border border-sand-200 shadow-sm">
+        <svg class="w-3.5 h-3.5 text-sand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-sand-600 font-light hidden sm:inline">Inversión:</span>
+        <span id="budgetSpentText" class="font-bold text-sand-900">$0</span>
+        <span id="budgetMaxText" class="text-sand-600 text-xs">/ $4.500.000</span>
+      </div>
+
+      <button id="soundToggleBtn" onclick="toggleMute()" class="p-2 rounded-full hover:bg-sand-200/80 text-sand-700 transition" title="Activar/Silenciar Sonido">
+        <svg id="soundIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+      </button>
+
+      <!-- BOTON CAMARA EVALUAR -->
+      <button onclick="evaluateAndCapture()" class="bg-sand-900 hover:bg-sand-800 text-sand-50 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-medium flex items-center gap-1.5 shadow-md shadow-sand-900/10 transition active:scale-95 text-xs sm:text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Fotografía & Armonía</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SUB-BAR / ROOM PRESETS & CONTROLS -->
+  <div class="bg-linen/70 border-b border-sand-200/80 px-4 sm:px-8 py-2 flex flex-wrap items-center justify-between gap-3 text-xs z-20 shrink-0">
+    <!-- Presets de Habitación / Desafíos -->
+    <div class="flex items-center gap-1.5 overflow-x-auto py-0.5 no-scrollbar">
+      <span class="text-sand-600 font-medium mr-1 uppercase tracking-wider text-[11px]">Ambiente:</span>
+      <button onclick="setChallenge('sala')" class="challenge-btn active px-3 py-1 rounded-full bg-sand-800 text-white font-medium transition" data-id="sala">Sala de Estar</button>
+      <button onclick="setChallenge('terraza')" class="challenge-btn px-3 py-1 rounded-full bg-sand-200/70 hover:bg-sand-300 text-sand-800 font-medium transition" data-id="terraza">Terraza & Exterior</button>
+      <button onclick="setChallenge('comedor')" class="challenge-btn px-3 py-1 rounded-full bg-sand-200/70 hover:bg-sand-300 text-sand-800 font-medium transition" data-id="comedor">Comedor Social</button>
+      <button onclick="setChallenge('libre')" class="challenge-btn px-3 py-1 rounded-full bg-sand-200/70 hover:bg-sand-300 text-sand-800 font-medium transition" data-id="libre">Estudio Libre</button>
+    </div>
+
+    <!-- Acciones Rápidas del Canvas -->
+    <div class="flex items-center gap-2">
+      <button onclick="rotateSelected()" class="px-2.5 py-1 bg-white hover:bg-sand-100 rounded-md border border-sand-300 text-sand-700 flex items-center gap-1 transition" title="Girar mueble seleccionado">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span class="hidden sm:inline">Rotar (R)</span>
+      </button>
+      <button onclick="bringForwardSelected()" class="px-2.5 py-1 bg-white hover:bg-sand-100 rounded-md border border-sand-300 text-sand-700 transition" title="Traer al frente">
+        ↑ Capa
+      </button>
+      <button onclick="deleteSelected()" class="px-2.5 py-1 bg-white hover:bg-red-50 text-sand-700 hover:text-red-700 rounded-md border border-sand-300 hover:border-red-300 transition" title="Quitar pieza seleccionada">
+        <svg class="w-3.5 h-3.5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span class="hidden sm:inline">Eliminar</span>
+      </button>
+      <button onclick="clearRoom()" class="px-2.5 py-1 text-sand-600 hover:text-sand-900 transition underline underline-offset-2">
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN INTERACTIVE STUDIO AREA -->
+  <main class="flex-1 relative overflow-hidden flex flex-col md:flex-row">
+
+    <!-- CANVAS / LIVING ROOM SPACE -->
+    <div id="roomContainer" class="flex-1 h-full relative overflow-hidden room-canvas-bg cursor-crosshair select-none" onclick="deselectAll(event)">
+
+      <!-- Architectural Atmosphere Elements -->
+      <!-- Natural Lighting Gradient Beam -->
+      <div class="ambient-sunlight pointer-events-none absolute -top-12 -right-12 w-96 h-96 bg-gradient-to-br from-amber-100/40 via-yellow-50/20 to-transparent rounded-full blur-3xl"></div>
+
+      <!-- Room Flooring & Baseboard subtle lines -->
+      <div id="floorPerspective" class="pointer-events-none absolute inset-0 opacity-40">
+        <!-- Floor plank lines -->
+        <div class="w-full h-full bg-[linear-gradient(to_bottom,transparent_65%,rgba(199,181,153,0.3)_65%,rgba(199,181,153,0.3)_66%,transparent_66%)] bg-[length:100%_40px]"></div>
+      </div>
+
+      <!-- Architectural Wall Window Effect -->
+      <div id="roomWindow" class="absolute top-6 left-8 sm:left-12 w-32 sm:w-44 h-48 sm:h-64 border-4 border-white/80 bg-gradient-to-b from-sky-100/50 to-amber-50/40 rounded-t-full shadow-inner pointer-events-none flex items-center justify-center overflow-hidden">
+        <div class="w-full h-0.5 bg-white/70"></div>
+        <div class="h-full w-0.5 bg-white/70 absolute"></div>
+        <!-- Distant garden silhouette -->
+        <div class="absolute bottom-0 w-full h-10 bg-emerald-800/10 rounded-t-full blur-[1px]"></div>
+      </div>
+
+      <!-- Soft Rug / Zone indicator (Can be toggled or moved) -->
+      <div id="roomRug" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-[460px] h-48 sm:h-[300px] rounded-3xl bg-[#ECE4D4]/80 border-2 border-dashed border-sand-300 shadow-sm pointer-events-none transition-all flex items-end justify-center pb-2">
+        <span class="text-[10px] tracking-widest uppercase font-semibold text-sand-400 select-none">Área Principal de Encuentro</span>
+      </div>
+
+      <!-- DYNAMIC FURNITURE LAYER -->
+      <div id="furnitureStage" class="absolute inset-0 w-full h-full pointer-events-auto">
+        <!-- Placed items will be rendered here dynamically -->
+      </div>
+
+      <!-- HELPER OVERLAY IF EMPTY -->
+      <div id="emptyHint" class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-sand-600 transition-opacity duration-300">
+        <div class="w-14 h-14 rounded-2xl bg-white/70 border border-sand-300 flex items-center justify-center mb-3 shadow-sm">
+          <svg class="w-7 h-7 text-sand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        </div>
+        <h3 class="font-serif text-xl sm:text-2xl text-sand-900 font-semibold mb-1">Tu lienzo está listo</h3>
+        <p class="max-w-xs text-xs sm:text-sm text-sand-600 leading-relaxed">Selecciona piezas del catálogo inferior para armar tu concepto de bienestar y calidez natural.</p>
+      </div>
+
+      <!-- FLOATING CANVAS CONTROLS (ZOOM / RESET) -->
+      <div class="absolute bottom-4 right-4 flex items-center gap-1.5 bg-linen/90 backdrop-blur-md p-1.5 rounded-full border border-sand-300 shadow-md">
+        <button onclick="toggleGrid()" class="p-1.5 rounded-full hover:bg-sand-200 text-sand-700 transition" title="Guías de alineación">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M6 4v16M12 4v16M18 4v16"/></svg>
+        </button>
+        <button onclick="addAmbientPlant()" class="p-1.5 rounded-full hover:bg-sand-200 text-olive transition font-bold" title="Añadir detalle orgánico rápido">+🌿</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM FURNITURE CATALOGUE DRAWER -->
+    <section class="h-64 sm:h-72 md:h-full md:w-80 lg:w-96 bg-linen border-t md:border-t-0 md:border-l border-sand-200 flex flex-col z-20 shrink-0">
+
+      <!-- Catalog Tabs -->
+      <div class="px-4 py-3 border-b border-sand-200 flex items-center justify-between">
+        <div class="flex items-center gap-1">
+          <span class="font-serif text-lg text-sand-900 font-semibold">Colección Entre Nos</span>
+          <span id="catalogCount" class="text-[10px] bg-sand-200 text-sand-800 font-bold px-1.5 py-0.5 rounded-full">8</span>
+        </div>
+        <!-- Filter Tabs -->
+        <div class="flex gap-1 text-[11px]">
+          <button onclick="filterCatalog('todos')" class="cat-filter active font-semibold text-sand-900 px-2 py-0.5 rounded bg-sand-200">Todos</button>
+          <button onclick="filterCatalog('asientos')" class="cat-filter text-sand-600 hover:text-sand-900 px-2 py-0.5 rounded">Asientos</button>
+          <button onclick="filterCatalog('mesas')" class="cat-filter text-sand-600 hover:text-sand-900 px-2 py-0.5 rounded">Mesas</button>
+          <button onclick="filterCatalog('decor')" class="cat-filter text-sand-600 hover:text-sand-900 px-2 py-0.5 rounded">Acentos</button>
+        </div>
+      </div>
+
+      <!-- Challenge Goal Reminder Banner -->
+      <div id="challengeBanner" class="bg-sand-200/40 px-4 py-2 border-b border-sand-200 text-xs flex items-center justify-between">
+        <div class="truncate">
+          <span class="font-semibold text-sand-900">Objetivo:</span>
+          <span id="challengeDesc" class="text-sand-700 ml-1">Incluye al menos 1 mesa y 2 asientos.</span>
+        </div>
+        <span id="challengeProgress" class="font-bold text-olive shrink-0 ml-2">0/3</span>
+      </div>
+
+      <!-- Catalog List / Grid -->
+      <div id="catalogGrid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2.5">
+        <!-- Rendered items with SVG previews & details -->
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL / SNAPSHOT & HARMONY RATING SCREEN -->
+  <div id="scoreModal" class="fixed inset-0 bg-sand-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-linen max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-sand-300 relative transform scale-95 transition-transform duration-300">
+
+      <!-- Close button -->
+      <button onclick="closeModal()" class="absolute top-5 right-5 text-sand-600 hover:text-sand-900 p-1.5 rounded-full hover:bg-sand-200/60 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Snapshot Header -->
+      <div class="text-center mb-6">
+        <span class="text-[11px] tracking-widest uppercase font-bold text-olive">Evaluación Estética & Flujo</span>
+        <h2 class="font-serif text-3xl text-sand-900 font-medium mt-1">Armonía en Casa</h2>
+        <p class="text-xs text-sand-600 mt-1">Estilismo y equilibrio espacial por Entre Nos Home</p>
+      </div>
+
+      <!-- Main Harmony Score Gauge -->
+      <div class="flex flex-col items-center justify-center py-4 bg-sand-50 rounded-2xl border border-sand-200/80 mb-6">
+        <div class="relative w-32 h-32 flex items-center justify-center">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="#EAE1D2" stroke-width="8" fill="transparent" />
+            <circle id="scoreCircle" cx="50" cy="50" r="40" stroke="#5A6852" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" fill="transparent" class="transition-all duration-1000 ease-out" />
+          </svg>
+          <div class="absolute flex flex-col items-center">
+            <span id="scoreNumber" class="font-serif text-4xl font-bold text-sand-900">0</span>
+            <span class="text-[10px] tracking-wider uppercase text-sand-600 font-semibold">Puntos</span>
+          </div>
+        </div>
+
+        <div id="verdictBadge" class="mt-2 px-3 py-1 bg-olive/10 text-olive text-xs font-semibold rounded-full">
+          Calculando equilibrio...
+        </div>
+      </div>
+
+      <!-- Breakdown metrics -->
+      <div class="space-y-3 mb-6 text-xs">
+        <div>
+          <div class="flex justify-between font-medium mb-1 text-sand-800">
+            <span>Fluidez & Espaciado (No saturación)</span>
+            <span id="metricFlow">0%</span>
+          </div>
+          <div class="w-full bg-sand-200 h-1.5 rounded-full overflow-hidden">
+            <div id="metricFlowBar" class="bg-olive h-full w-0 transition-all duration-700"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between font-medium mb-1 text-sand-800">
+            <span>Equilibrio de Materiales (Madera + Textil + Piedra)</span>
+            <span id="metricMaterials">0%</span>
+          </div>
+          <div class="w-full bg-sand-200 h-1.5 rounded-full overflow-hidden">
+            <div id="metricMaterialsBar" class="bg-terracotta h-full w-0 transition-all duration-700"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between font-medium mb-1 text-sand-800">
+            <span>Objetivo del Reto</span>
+            <span id="metricChallenge">Pendiente</span>
+          </div>
+          <div class="w-full bg-sand-200 h-1.5 rounded-full overflow-hidden">
+            <div id="metricChallengeBar" class="bg-sand-800 h-full w-0 transition-all duration-700"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stylist Curated Feedback -->
+      <div id="stylistFeedback" class="bg-white p-3.5 rounded-xl border border-sand-200 text-xs text-sand-700 italic leading-relaxed mb-6 font-serif text-sm">
+        "Un espacio sereno y honesto. La presencia de madera y fibras naturales invitan a la calma y a disfrutar del aquí y el ahora."
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-3">
+        <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl border border-sand-300 font-medium text-sand-800 hover:bg-sand-200/50 transition text-xs">
+          Seguir Decorando
+        </button>
+        <button onclick="shareDesign()" class="flex-1 py-2.5 rounded-xl bg-sand-900 text-sand-50 font-medium hover:bg-sand-800 transition text-xs shadow-md shadow-sand-900/10 flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span id="shareBtnText">Copiar Resumen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-sand-900 text-sand-100 px-4 py-2 rounded-full text-xs font-medium shadow-lg pointer-events-none opacity-0 transition-all duration-300 z-50">
+    Mensaje
+  </div>
+
+  <!-- JAVASCRIPT GAME LOGIC & SOUND SYNTHESIS -->
+  <script>
+    // --- 1. SOUND GENERATOR VIA WEB AUDIO API (Zero external audio files) ---
+    let audioCtx = null;
+    let isMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.15, vol = 0.08) {
+      if (isMuted) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Fallback for strict browser audio autoplay
+      }
+    }
+
+    function soundPlace() {
+      // Warm woody thud sound
+      playTone(180, 'triangle', 0.18, 0.12);
+      setTimeout(() => playTone(120, 'sine', 0.22, 0.15), 30);
+    }
+
+    function soundClick() {
+      playTone(520, 'sine', 0.06, 0.04);
+    }
+
+    function soundRotate() {
+      playTone(340, 'triangle', 0.1, 0.05);
+    }
+
+    function soundDelete() {
+      playTone(130, 'sawtooth', 0.15, 0.05);
+    }
+
+    function soundTada() {
+      // Elegant major chord for harmony evaluation
+      playTone(440, 'sine', 0.4, 0.08); // A
+      setTimeout(() => playTone(554.37, 'sine', 0.4, 0.08), 80); // C#
+      setTimeout(() => playTone(659.25, 'sine', 0.5, 0.08), 160); // E
+      setTimeout(() => playTone(880, 'sine', 0.7, 0.1), 240); // A high
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      const icon = document.getElementById('soundIcon');
+      if (isMuted) {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />`;
+        showToast('Sonido desactivado');
+      } else {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>`;
+        showToast('Sonido activado');
+        soundClick();
+      }
+    }
+
+    // --- 2. CATALOGUE DEFINITION (Entre Nos Home Aesthetic Furniture) ---
+    const FURNITURE_CATALOG = [
+      {
+        id: 'sofa-lino',
+        name: 'Sofá Nube en Lino Natural',
+        category: 'asientos',
+        material: 'textil',
+        price: 1850000,
+        desc: 'Tapizado en lino crudo de alto gramaje con estructura en madera de pino certificada.',
+        width: 170,
+        height: 90,
+        svg: `
+          <svg viewBox="0 0 170 90" class="w-full h-full drop-shadow-md">
+            <!-- Shadow -->
+            <rect x="5" y="8" width="160" height="78" rx="20" fill="#382C1E" opacity="0.12"/>
+            <!-- Base frame -->
+            <rect x="8" y="6" width="154" height="74" rx="18" fill="#EADFCE" stroke="#D3C3AD" stroke-width="2"/>
+            <!-- Cushions -->
+            <rect x="14" y="22" width="68" height="52" rx="12" fill="#FAF7F2" stroke="#DFD4C2" stroke-width="1.5"/>
+            <rect x="88" y="22" width="68" height="52" rx="12" fill="#FAF7F2" stroke="#DFD4C2" stroke-width="1.5"/>
+            <!-- Backrest -->
+            <rect x="14" y="10" width="142" height="18" rx="8" fill="#E5D9C7"/>
+            <!-- Texture lines -->
+            <line x1="85" y1="22" x2="85" y2="74" stroke="#D9CCA8" stroke-dasharray="2 2" stroke-width="1.5"/>
+          </svg>
+        `
+      },
+      {
+        id: 'poltrona-boucle',
+        name: 'Poltrona Curva Bouclé',
+        category: 'asientos',
+        material: 'textil',
+        price: 780000,
+        desc: 'Diseño orgánico envolvente tapizado en suave tela bouclé tono marfil.',
+        width: 95,
+        height: 90,
+        svg: `
+          <svg viewBox="0 0 95 90" class="w-full h-full drop-shadow-md">
+            <ellipse cx="47" cy="48" rx="42" ry="38" fill="#382C1E" opacity="0.1"/>
+            <ellipse cx="47" cy="45" rx="40" ry="36" fill="#F4EDE4" stroke="#DCCFBF" stroke-width="2"/>
+            <path d="M18 42 C18 20, 76 20, 76 42 C76 60, 68 70, 47 70 C26 70, 18 60, 18 42 Z" fill="#FFFFFF" stroke="#E2D7C8" stroke-width="1.5"/>
+            <ellipse cx="47" cy="48" rx="22" ry="18" fill="#ECE4D8"/>
+          </svg>
+        `
+      },
+      {
+        id: 'mesa-travertino',
+        name: 'Mesa de Centro en Travertino',
+        category: 'mesas',
+        material: 'piedra',
+        price: 920000,
+        desc: 'Tablero pulido mate con vetas beige y patas cilíndricas macizas.',
+        width: 120,
+        height: 75,
+        svg: `
+          <svg viewBox="0 0 120 75" class="w-full h-full drop-shadow-md">
+            <ellipse cx="60" cy="40" rx="55" ry="32" fill="#382C1E" opacity="0.14"/>
+            <ellipse cx="60" cy="36" rx="54" ry="30" fill="#E8DFD1" stroke="#D2C5B3" stroke-width="2"/>
+            <!-- Stone organic veins -->
+            <path d="M25 36 Q50 30 70 38 T100 32" stroke="#DACFBF" stroke-width="2" fill="none"/>
+            <circle cx="35" cy="36" r="10" fill="#D7CABE" opacity="0.6"/>
+            <circle cx="85" cy="36" r="10" fill="#D7CABE" opacity="0.6"/>
+          </svg>
+        `
+      },
+      {
+        id: 'mesa-comedor-roble',
+        name: 'Comedor Roble Natural & Bisel',
+        category: 'mesas',
+        material: 'madera',
+        price: 1650000,
+        desc: 'Mesa amplia acabada en aceite vegetal mate que resalta las vetas puras de roble.',
+        width: 180,
+        height: 95,
+        svg: `
+          <svg viewBox="0 0 180 95" class="w-full h-full drop-shadow-md">
+            <rect x="6" y="8" width="168" height="82" rx="14" fill="#382C1E" opacity="0.15"/>
+            <rect x="8" y="6" width="164" height="78" rx="12" fill="#C4A882" stroke="#9A7E58" stroke-width="2"/>
+            <!-- Wood Planks -->
+            <line x1="8" y1="32" x2="172" y2="32" stroke="#AA8E68" stroke-width="1.5"/>
+            <line x1="8" y1="58" x2="172" y2="58" stroke="#AA8E68" stroke-width="1.5"/>
+            <rect x="18" y="14" width="144" height="62" rx="6" fill="#CEB490" opacity="0.5"/>
+          </svg>
+        `
+      },
+      {
+        id: 'silla-ratan',
+        name: 'Silla Terraza en Ratán & Teca',
+        category: 'asientos',
+        material: 'madera',
+        price: 410000,
+        desc: 'Estructura ligera en madera teca y tejido cannage tradicional respirable.',
+        width: 65,
+        height: 65,
+        svg: `
+          <svg viewBox="0 0 65 65" class="w-full h-full drop-shadow-md">
+            <rect x="4" y="6" width="56" height="54" rx="10" fill="#382C1E" opacity="0.12"/>
+            <rect x="6" y="4" width="52" height="52" rx="8" fill="#D9BA8F" stroke="#B08D5B" stroke-width="1.5"/>
+            <rect x="14" y="12" width="36" height="36" rx="4" fill="#E8D1A7" stroke="#A7834F" stroke-width="1"/>
+            <!-- Rattan crossweave pattern -->
+            <line x1="20" y1="12" x2="20" y2="48" stroke="#BF9D66" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="32" y1="12" x2="32" y2="48" stroke="#BF9D66" stroke-width="1" stroke-dasharray="2 2"/>
+            <line x1="44" y1="12" x2="44" y2="48" stroke="#BF9D66" stroke-width="1" stroke-dasharray="2 2"/>
+          </svg>
+        `
+      },
+      {
+        id: 'lampara-escultural',
+        name: 'Lámpara Trípode en Lino & Latón',
+        category: 'decor',
+        material: 'textil',
+        price: 380000,
+        desc: 'Luz ambiental difusa y cálida con pantalla cilíndrica en hilo natural.',
+        width: 55,
+        height: 55,
+        svg: `
+          <svg viewBox="0 0 55 55" class="w-full h-full drop-shadow-md">
+            <!-- Glow circle -->
+            <circle cx="27.5" cy="27.5" r="26" fill="#FFF8E7" opacity="0.7"/>
+            <circle cx="27.5" cy="27.5" r="18" fill="#FAF1D8" stroke="#D3C096" stroke-width="2"/>
+            <circle cx="27.5" cy="27.5" r="8" fill="#DDBB72"/>
+            <circle cx="27.5" cy="27.5" r="3" fill="#FFFFFF"/>
+          </svg>
+        `
+      },
+      {
+        id: 'planta-monstera',
+        name: 'Monstera Deliciosa en Cerámica',
+        category: 'decor',
+        material: 'planta',
+        price: 210000,
+        desc: 'Hojas frescas que purifican e integran biofilia relajante a tu sala.',
+        width: 65,
+        height: 65,
+        svg: `
+          <svg viewBox="0 0 65 65" class="w-full h-full drop-shadow-md">
+            <circle cx="32" cy="34" r="24" fill="#2E3B27" opacity="0.15"/>
+            <!-- Ceramic pot -->
+            <circle cx="32" cy="32" r="14" fill="#E3DACB" stroke="#B8A992" stroke-width="2"/>
+            <!-- Leaves top view -->
+            <path d="M32 30 C20 10, 10 24, 25 32 Z" fill="#4B6343"/>
+            <path d="M32 30 C45 10, 58 20, 39 32 Z" fill="#5F7B54"/>
+            <path d="M32 32 C48 35, 52 50, 36 38 Z" fill="#3E5437"/>
+            <path d="M32 32 C14 38, 12 52, 28 38 Z" fill="#6B8860"/>
+          </svg>
+        `
+      },
+      {
+        id: 'alfombra-yute',
+        name: 'Alfombra Circular en Yute Trenzado',
+        category: 'decor',
+        material: 'textil',
+        price: 490000,
+        desc: 'Tejida artesanalmente punto a punto con fibras rústicas naturales.',
+        width: 140,
+        height: 140,
+        svg: `
+          <svg viewBox="0 0 140 140" class="w-full h-full">
+            <circle cx="70" cy="70" r="66" fill="#DCC7A4" stroke="#BEA67F" stroke-width="2"/>
+            <circle cx="70" cy="70" r="52" fill="#E5D3B5" stroke="#C5AE87" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <circle cx="70" cy="70" r="36" fill="#D3BC98" stroke="#BEA67F" stroke-width="1.5"/>
+            <circle cx="70" cy="70" r="18" fill="#E5D3B5"/>
+          </svg>
+        `
+      }
+    ];
+
+    // --- 3. CHALLENGES DEFINITION ---
+    const CHALLENGES = {
+      sala: {
+        title: 'Sala Cálida & Minimal',
+        desc: 'Agrega al menos 1 mesa y 2 asientos cómodos para socializar.',
+        budgetMax: 4500000,
+        requiredCategories: ['mesas', 'asientos'],
+        minItems: 3,
+        rugStyle: 'rounded-3xl w-72 sm:w-[460px] h-48 sm:h-[300px]',
+        rugLabel: 'Espacio de Encuentro & Charla'
+      },
+      terraza: {
+        title: 'Terraza & Balcón Natural',
+        desc: 'Usa piezas frescas como la Silla de Ratán y vegetación.',
+        budgetMax: 2800000,
+        requiredCategories: ['asientos', 'decor'],
+        minItems: 3,
+        rugStyle: 'rounded-full w-64 sm:w-[360px] h-64 sm:h-[360px]',
+        rugLabel: 'Rincón de Exterior & Bienestar'
+      },
+      comedor: {
+        title: 'Comedor Acogedor de Domingo',
+        desc: 'Coloca el Comedor de Roble y al menos 2 asientos.',
+        budgetMax: 5000000,
+        requiredCategories: ['mesas', 'asientos'],
+        minItems: 3,
+        rugStyle: 'rounded-2xl w-80 sm:w-[500px] h-52 sm:h-[320px]',
+        rugLabel: 'Comedor Familiar'
+      },
+      libre: {
+        title: 'Estudio de Diseño Libre',
+        desc: 'Explora combinaciones orgánicas sin límites de espacio.',
+        budgetMax: 10000000,
+        requiredCategories: [],
+        minItems: 1,
+        rugStyle: 'rounded-3xl w-72 sm:w-[460px] h-48 sm:h-[300px]',
+        rugLabel: 'Composición Libre'
+      }
+    };
+
+    // --- 4. GAME STATE ---
+    let currentChallengeKey = 'sala';
+    let placedItems = []; // { instanceId, item, x, y, rotation, zIndex }
+    let selectedInstanceId = null;
+    let nextZIndex = 10;
+    let currentFilter = 'todos';
+
+    // Drag tracking
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let itemInitialX = 0;
+    let itemInitialY = 0;
+    let draggedElement = null;
+
+    // --- 5. INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCatalog();
+      setChallenge('sala');
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('keydown', handleKeyboardShortcuts);
+    });
+
+    function handleKeyboardShortcuts(e) {
+      if (e.key === 'r' || e.key === 'R') {
+        rotateSelected();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedInstanceId && document.activeElement.tagName !== 'INPUT') {
+          deleteSelected();
+        }
+      }
+    }
+
+    // --- 6. CATALOGUE RENDERING & FILTERING ---
+    function renderCatalog() {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = '';
+
+      const items = currentFilter === 'todos'
+        ? FURNITURE_CATALOG
+        : FURNITURE_CATALOG.filter(it => it.category === currentFilter);
+
+      document.getElementById('catalogCount').innerText = items.length;
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'group bg-white hover:bg-sand-50 rounded-2xl p-2.5 border border-sand-200 hover:border-sand-400 transition-all shadow-sm hover:shadow-md flex flex-col justify-between cursor-pointer';
+        card.onclick = () => spawnFurniture(item);
+
+        card.innerHTML = `
+          <div class="h-20 sm:h-24 w-full bg-sand-100/60 rounded-xl flex items-center justify-center p-2 mb-2 group-hover:scale-105 transition-transform">
+            <div class="w-full h-full flex items-center justify-center pointer-events-none">
+              ${item.svg}
+            </div>
+          </div>
+          <div>
+            <h4 class="font-serif text-xs sm:text-sm font-semibold text-sand-900 leading-tight">${item.name}</h4>
+            <p class="text-[10px] text-sand-500 line-clamp-1 mt-0.5">${item.desc}</p>
+            <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-sand-100">
+              <span class="text-xs font-bold text-sand-800">$${formatPrice(item.price)}</span>
+              <span class="text-[10px] bg-sand-200/80 group-hover:bg-sand-900 group-hover:text-white px-2 py-0.5 rounded-full font-medium transition text-sand-700">+ Añadir</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCatalog(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.cat-filter').forEach(btn => {
+        btn.classList.remove('active', 'bg-sand-200', 'font-semibold', 'text-sand-900');
+        btn.classList.add('text-sand-600');
+      });
+      event.target.classList.add('active', 'bg-sand-200', 'font-semibold', 'text-sand-900');
+      renderCatalog();
+      soundClick();
+    }
+
+    function formatPrice(val) {
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // --- 7. FURNITURE PLACEMENT & MANIPULATION ---
+    function spawnFurniture(item) {
+      const container = document.getElementById('roomContainer');
+      const rect = container.getBoundingClientRect();
+
+      // Place near center with slight random offset to prevent direct stacking
+      const randOffset = (Math.random() - 0.5) * 60;
+      const posX = Math.max(20, (rect.width / 2) - (item.width / 2) + randOffset);
+      const posY = Math.max(20, (rect.height / 2) - (item.height / 2) + randOffset);
+
+      const instanceId = 'furn_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+
+      const placedObj = {
+        instanceId: instanceId,
+        item: item,
+        x: posX,
+        y: posY,
+        rotation: 0,
+        zIndex: ++nextZIndex
+      };
+
+      placedItems.push(placedObj);
+      renderFurnitureElement(placedObj);
+      selectFurniture(instanceId);
+      updateBudgetAndGoals();
+      soundPlace();
+      showToast(`Añadido: ${item.name}`);
+    }
+
+    function renderFurnitureElement(obj) {
+      const stage = document.getElementById('furnitureStage');
+      const el = document.createElement('div');
+      el.id = obj.instanceId;
+      el.className = 'draggable-furniture absolute';
+      el.style.width = obj.item.width + 'px';
+      el.style.height = obj.item.height + 'px';
+      el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.rotation}deg)`;
+      el.style.zIndex = obj.zIndex;
+
+      el.innerHTML = `
+        <div class="w-full h-full relative">
+          ${obj.item.svg}
+        </div>
+      `;
+
+      // Touch & Mouse Drag handlers
+      el.addEventListener('mousedown', (e) => startDrag(e, obj.instanceId));
+      el.addEventListener('touchstart', (e) => startDrag(e, obj.instanceId), { passive: false });
+
+      stage.appendChild(el);
+      checkEmptyState();
+    }
+
+    function startDrag(e, instanceId) {
+      e.stopPropagation();
+      initAudio();
+      selectFurniture(instanceId);
+
+      isDragging = true;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      dragStartX = clientX;
+      dragStartY = clientY;
+
+      const obj = placedItems.find(i => i.instanceId === instanceId);
+      if (obj) {
+        itemInitialX = obj.x;
+        itemInitialY = obj.y;
+      }
+
+      const moveHandler = (evt) => onDragMove(evt, instanceId);
+      const endHandler = () => {
+        isDragging = false;
+        window.removeEventListener('mousemove', moveHandler);
+        window.removeEventListener('mouseup', endHandler);
+        window.removeEventListener('touchmove', moveHandler);
+        window.removeEventListener('touchend', endHandler);
+      };
+
+      window.addEventListener('mousemove', moveHandler);
+      window.addEventListener('mouseup', endHandler);
+      window.addEventListener('touchmove', moveHandler, { passive: false });
+      window.addEventListener('touchend', endHandler);
+    }
+
+    function onDragMove(e, instanceId) {
+      if (!isDragging) return;
+      if (e.cancelable) e.preventDefault();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - dragStartX;
+      const deltaY = clientY - dragStartY;
+
+      const container = document.getElementById('roomContainer');
+      const containerRect = container.getBoundingClientRect();
+
+      const obj = placedItems.find(i => i.instanceId === instanceId);
+      if (!obj) return;
+
+      let newX = itemInitialX + deltaX;
+      let newY = itemInitialY + deltaY;
+
+      // Soft constraints inside room bounds
+      newX = Math.max(-20, Math.min(newX, containerRect.width - obj.item.width + 20));
+      newY = Math.max(-20, Math.min(newY, containerRect.height - obj.item.height + 20));
+
+      obj.x = newX;
+      obj.y = newY;
+
+      const el = document.getElementById(instanceId);
+      if (el) {
+        el.style.transform = `translate(${newX}px, ${newY}px) rotate(${obj.rotation}deg)`;
+      }
+    }
+
+    function selectFurniture(instanceId) {
+      selectedInstanceId = instanceId;
+      document.querySelectorAll('.draggable-furniture').forEach(el => {
+        el.classList.remove('selected');
+      });
+      const target = document.getElementById(instanceId);
+      if (target) {
+        target.classList.add('selected');
+      }
+    }
+
+    function deselectAll(e) {
+      if (e.target.id === 'roomContainer' || e.target.id === 'furnitureStage') {
+        selectedInstanceId = null;
+        document.querySelectorAll('.draggable-furniture').forEach(el => el.classList.remove('selected'));
+      }
+    }
+
+    function rotateSelected() {
+      if (!selectedInstanceId) {
+        showToast('Toca un mueble para girarlo');
+        return;
+      }
+      const obj = placedItems.find(i => i.instanceId === selectedInstanceId);
+      if (obj) {
+        obj.rotation = (obj.rotation + 45) % 360;
+        const el = document.getElementById(obj.instanceId);
+        if (el) {
+          el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.rotation}deg)`;
+        }
+        soundRotate();
+      }
+    }
+
+    function bringForwardSelected() {
+      if (!selectedInstanceId) return;
+      const obj = placedItems.find(i => i.instanceId === selectedInstanceId);
+      if (obj) {
+        obj.zIndex = ++nextZIndex;
+        const el = document.getElementById(obj.instanceId);
+        if (el) el.style.zIndex = obj.zIndex;
+        soundClick();
+      }
+    }
+
+    function deleteSelected() {
+      if (!selectedInstanceId) {
+        showToast('Selecciona una pieza primero');
+        return;
+      }
+      const index = placedItems.findIndex(i => i.instanceId === selectedInstanceId);
+      if (index !== -1) {
+        const item = placedItems[index];
+        const el = document.getElementById(selectedInstanceId);
+        if (el) el.remove();
+        placedItems.splice(index, 1);
+        selectedInstanceId = null;
+        updateBudgetAndGoals();
+        soundDelete();
+        checkEmptyState();
+        showToast(`Eliminado: ${item.item.name}`);
+      }
+    }
+
+    function clearRoom() {
+      if (placedItems.length === 0) return;
+      document.getElementById('furnitureStage').innerHTML = '';
+      placedItems = [];
+      selectedInstanceId = null;
+      updateBudgetAndGoals();
+      soundDelete();
+      checkEmptyState();
+      showToast('Espacio despejado');
+    }
+
+    function addAmbientPlant() {
+      const plantItem = FURNITURE_CATALOG.find(i => i.id === 'planta-monstera');
+      if (plantItem) spawnFurniture(plantItem);
+    }
+
+    function toggleGrid() {
+      const floor = document.getElementById('floorPerspective');
+      floor.classList.toggle('opacity-40');
+      floor.classList.toggle('opacity-10');
+      soundClick();
+      showToast('Guías visuales ajustadas');
+    }
+
+    function checkEmptyState() {
+      const hint = document.getElementById('emptyHint');
+      hint.style.opacity = placedItems.length === 0 ? '1' : '0';
+      hint.style.pointerEvents = placedItems.length === 0 ? 'auto' : 'none';
+    }
+
+    function handleResize() {
+      // Keep furniture in bounds if viewport changed drastically
+      const container = document.getElementById('roomContainer');
+      const rect = container.getBoundingClientRect();
+      placedItems.forEach(obj => {
+        if (obj.x > rect.width - 40) obj.x = rect.width - obj.item.width;
+        if (obj.y > rect.height - 40) obj.y = rect.height - obj.item.height;
+        const el = document.getElementById(obj.instanceId);
+        if (el) {
+          el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.rotation}deg)`;
+        }
+      });
+    }
+
+    // --- 8. CHALLENGES & BUDGET SYSTEM ---
+    function setChallenge(key) {
+      currentChallengeKey = key;
+      const c = CHALLENGES[key];
+
+      document.querySelectorAll('.challenge-btn').forEach(b => {
+        if (b.dataset.id === key) {
+          b.className = 'challenge-btn active px-3 py-1 rounded-full bg-sand-800 text-white font-medium transition';
+        } else {
+          b.className = 'challenge-btn px-3 py-1 rounded-full bg-sand-200/70 hover:bg-sand-300 text-sand-800 font-medium transition';
+        }
+      });
+
+      document.getElementById('currentChallengeTitle').innerText = c.title;
+      document.getElementById('challengeDesc').innerText = c.desc;
+      document.getElementById('budgetMaxText').innerText = `/ $${formatPrice(c.budgetMax)}`;
+
+      // Update room rug styling to match theme
+      const rug = document.getElementById('roomRug');
+      rug.className = `absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#ECE4D4]/80 border-2 border-dashed border-sand-300 shadow-sm pointer-events-none transition-all flex items-end justify-center pb-2 ${c.rugStyle}`;
+      rug.querySelector('span').innerText = c.rugLabel;
+
+      updateBudgetAndGoals();
+      soundClick();
+    }
+
+    function updateBudgetAndGoals() {
+      const c = CHALLENGES[currentChallengeKey];
+      const totalSpent = placedItems.reduce((acc, curr) => acc + curr.item.price, 0);
+
+      const budgetEl = document.getElementById('budgetSpentText');
+      budgetEl.innerText = `$${formatPrice(totalSpent)}`;
+
+      if (totalSpent > c.budgetMax) {
+        budgetEl.className = 'font-bold text-red-600';
+      } else {
+        budgetEl.className = 'font-bold text-sand-900';
+      }
+
+      // Check categories satisfied
+      let fulfilled = 0;
+      if (c.requiredCategories.length > 0) {
+        c.requiredCategories.forEach(cat => {
+          if (placedItems.some(i => i.item.category === cat)) fulfilled++;
+        });
+      } else {
+        fulfilled = placedItems.length >= 1 ? 1 : 0;
+      }
+
+      const totalReq = Math.max(1, c.requiredCategories.length);
+      document.getElementById('challengeProgress').innerText = `${fulfilled}/${totalReq}`;
+    }
+
+    // --- 9. HARMONY & BIENESTAR EVALUATION ALGORITHM ---
+    function evaluateAndCapture() {
+      if (placedItems.length === 0) {
+        showToast('Añade muebles a tu espacio antes de evaluar');
+        return;
+      }
+
+      soundTada();
+      const modal = document.getElementById('scoreModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('div').classList.remove('scale-95');
+      }, 10);
+
+      // Calculations:
+      // 1. Spacing / Flow (Items not overlapping completely, good distribution)
+      let flowScore = 80;
+      if (placedItems.length > 7) flowScore = 65; // Overcrowded
+      if (placedItems.length < 2) flowScore = 50; // Too empty
+
+      // Check bounding box distances
+      let overlapPenalty = 0;
+      for (let i = 0; i < placedItems.length; i++) {
+        for (let j = i + 1; j < placedItems.length; j++) {
+          const dx = Math.abs(placedItems[i].x - placedItems[j].x);
+          const dy = Math.abs(placedItems[i].y - placedItems[j].y);
+          if (dx < 35 && dy < 35) {
+            overlapPenalty += 10;
+          }
+        }
+      }
+      flowScore = Math.max(30, Math.min(100, flowScore - overlapPenalty));
+
+      // 2. Material Balance (Wood + Natural Fibers + Stone/Ceramic + Biofilia)
+      const materials = new Set(placedItems.map(p => p.item.material));
+      let matScore = Math.min(100, materials.size * 26 + 15);
+
+      // 3. Challenge Fulfillment
+      const c = CHALLENGES[currentChallengeKey];
+      let challengeFulfilled = true;
+      c.requiredCategories.forEach(cat => {
+        if (!placedItems.some(p => p.item.category === cat)) challengeFulfilled = false;
+      });
+      const totalSpent = placedItems.reduce((acc, curr) => acc + curr.item.price, 0);
+      const budgetOk = totalSpent <= c.budgetMax;
+
+      let challengeScore = 50;
+      if (challengeFulfilled) challengeScore += 30;
+      if (budgetOk) challengeScore += 20;
+
+      // Final Composite Score (0 - 100)
+      const finalScore = Math.round((flowScore * 0.35) + (matScore * 0.35) + (challengeScore * 0.30));
+
+      // Animate progress circle & bars
+      animateModalResults(finalScore, flowScore, matScore, challengeScore, budgetOk);
+    }
+
+    function animateModalResults(finalScore, flow, mat, challenge, budgetOk) {
+      const circle = document.getElementById('scoreCircle');
+      const scoreNumber = document.getElementById('scoreNumber');
+      const verdict = document.getElementById('verdictBadge');
+      const feedback = document.getElementById('stylistFeedback');
+
+      // 251.2 is circumference for r=40
+      const offset = 251.2 - (251.2 * finalScore / 100);
+      circle.style.strokeDashoffset = offset;
+
+      // Animate counter
+      let count = 0;
+      const interval = setInterval(() => {
+        count += 2;
+        if (count >= finalScore) {
+          count = finalScore;
+          clearInterval(interval);
+        }
+        scoreNumber.innerText = count;
+      }, 20);
+
+      // Bars
+      document.getElementById('metricFlow').innerText = `${flow}%`;
+      document.getElementById('metricFlowBar').style.width = `${flow}%`;
+
+      document.getElementById('metricMaterials').innerText = `${mat}%`;
+      document.getElementById('metricMaterialsBar').style.width = `${mat}%`;
+
+      document.getElementById('metricChallenge').innerText = challenge >= 80 ? 'Cumplido con Éxito' : 'Requiere Ajustes';
+      document.getElementById('metricChallengeBar').style.width = `${challenge}%`;
+
+      // Stylist quotes
+      if (finalScore >= 85) {
+        verdict.innerText = '✨ Santuario de Paz & Diseño Perfecto';
+        verdict.className = 'mt-2 px-3 py-1 bg-olive/15 text-olive text-xs font-semibold rounded-full';
+        feedback.innerText = '"Has logrado capturar la esencia de Entre Nos Home: un espacio cálido, aireado y honesto donde la madera pura y los linos respiran en armonía total."';
+      } else if (finalScore >= 65) {
+        verdict.innerText = '🌿 Espacio Acogedor & Funcional';
+        verdict.className = 'mt-2 px-3 py-1 bg-amber-800/15 text-amber-900 text-xs font-semibold rounded-full';
+        feedback.innerText = '"Excelente selección de mobiliario. Prueba añadir un toque vegetal orgánico o darle mayor espacio de circulación entre la mesa y los asientos."';
+      } else {
+        verdict.innerText = '🪵 Espacio en Exploración';
+        verdict.className = 'mt-2 px-3 py-1 bg-sand-300 text-sand-800 text-xs font-semibold rounded-full';
+        feedback.innerText = '"Hay piezas hermosas, pero el espacio pide aire y un mejor balance de materiales. Recuerda mantener el respeto por los vacíos y el presupuesto."';
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('scoreModal');
+      modal.classList.add('opacity-0');
+      modal.querySelector('div').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+      soundClick();
+    }
+
+    function shareDesign() {
+      const score = document.getElementById('scoreNumber').innerText;
+      const c = CHALLENGES[currentChallengeKey];
+      const summary = `🌿 Mi diseño en Entre Nos Home: logré un Puntaje de Armonía de ${score}/100 en el reto "${c.title}". Muebles elegidos: ${placedItems.map(p => p.item.name).join(', ')}.`;
+
+      const shareBtn = document.getElementById('shareBtnText');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(summary).then(() => {
+          shareBtn.innerText = '¡Copiado!';
+          setTimeout(() => shareBtn.innerText = 'Copiar Resumen', 2000);
+        });
+      } else {
+        document.execCommand('copy');
+        shareBtn.innerText = '¡Copiado!';
+        setTimeout(() => shareBtn.innerText = 'Copiar Resumen', 2000);
+      }
+      showToast('Resumen estético copiado al portapapeles');
+    }
+
+    // --- 10. TOAST SYSTEM ---
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translate(-50%, -10px)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, 0px)';
+      }, 2200);
+    }
+  </script>
+</body>
+</html>
